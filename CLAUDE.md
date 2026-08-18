@@ -16,6 +16,7 @@ React Native + Expo, TypeScript. The app assumes a fixed phone on a stand, not h
 - `npx expo install <package>` — always use this (not plain `npm install`) for Expo/RN native modules, so the version resolved matches the installed Expo SDK (currently ~57)
 - No lint or test scripts are configured yet.
 - Release builds (TestFlight / Play Internal Testing) go through **EAS Build** — not needed for local dev.
+- `npx expo export --platform web` — builds the web target to `dist/`, deployed via [vercel.json](vercel.json) for quick browser-based testing on a phone without Expo Go. This is a convenience path only — `expo-camera`'s web fallback (`getUserMedia` in-browser) doesn't fully represent native behavior, and later features (Skia perspective warp) may not behave the same on web. Expo Go remains the primary dev workflow.
 
 Expo SDK 57 is new enough that training-data knowledge of its APIs may be stale — check `node_modules/<package>/build/*.d.ts` (or https://docs.expo.dev/versions/v57.0.0/) rather than assuming an API shape.
 
