@@ -31,7 +31,7 @@ export default function App() {
     <View style={styles.container}>
       <CameraView style={StyleSheet.absoluteFill} facing="back" />
       <Image
-        source={require('./assets/reference-placeholder.png')}
+        source={require('./assets/reference-placeholder.jpg')}
         style={[styles.overlay, { opacity }]}
         resizeMode="contain"
       />

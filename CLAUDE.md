@@ -33,7 +33,7 @@ True independent 4-corner dragging needs real perspective distortion. `@shopify/
 
 - [App.tsx](App.tsx) — root component. Currently: camera permission handling via `useCameraPermissions`, a fullscreen `CameraView` (`expo-camera`, `facing="back"`), and a static placeholder reference image absolutely positioned on top at fixed opacity.
 - [app.json](app.json) — Expo config; holds the `expo-camera` plugin block (camera usage-description strings for iOS/Android). Edit this instead of native project files — there are no `/ios` or `/android` folders (not prebuilt/ejected).
-- [assets/reference-placeholder.png](assets/reference-placeholder.png) — placeholder line-art overlay image, standing in for the bundled template library / camera-roll import (step 5).
+- [assets/reference-placeholder.jpg](assets/reference-placeholder.jpg) — line-art overlay image, standing in for the bundled template library / camera-roll import (step 5).
 - [tsconfig.json](tsconfig.json) extends `expo/tsconfig.base` with `strict: true`.
 
 ## Build order
