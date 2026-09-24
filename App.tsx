@@ -11,13 +11,21 @@ const IMAGE_SIZE_RATIO = 0.8; // reference image box is 80% of the screen, match
 const HANDLE_SIZE = 36;
 
 type Corners = [Point, Point, Point, Point]; // top-left, top-right, bottom-right, bottom-left
+type Size = { width: number; height: number };
 
-function defaultCorners(width: number, height: number): Corners {
-  const inset = (1 - IMAGE_SIZE_RATIO) / 2;
-  const left = width * inset;
-  const top = height * inset;
-  const right = width * (1 - inset);
-  const bottom = height * (1 - inset);
+// Fits the image's own aspect ratio inside a box up to maxWidth x maxHeight,
+// so the corner handles land exactly on the image's visible edges instead of
+// a differently-shaped box around it.
+function fitImageBox(naturalWidth: number, naturalHeight: number, maxWidth: number, maxHeight: number): Size {
+  const scale = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight);
+  return { width: naturalWidth * scale, height: naturalHeight * scale };
+}
+
+function centeredCorners(container: Size, box: Size): Corners {
+  const left = (container.width - box.width) / 2;
+  const top = (container.height - box.height) / 2;
+  const right = left + box.width;
+  const bottom = top + box.height;
   return [
     { x: left, y: top },
     { x: right, y: top },
@@ -75,12 +83,32 @@ function CornerHandle({
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [opacity, setOpacity] = useState(DEFAULT_OPACITY);
-  const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null);
+  const [containerSize, setContainerSize] = useState<Size | null>(null);
   const [corners, setCorners] = useState<Corners | null>(null);
+  const [hasCustomCorners, setHasCustomCorners] = useState(false);
   const [alignMode, setAlignMode] = useState(false);
   const referenceImage = useImage(require('./assets/reference-placeholder.jpg'));
 
+  const imageSize =
+    containerSize && referenceImage
+      ? fitImageBox(
+          referenceImage.width(),
+          referenceImage.height(),
+          containerSize.width * IMAGE_SIZE_RATIO,
+          containerSize.height * IMAGE_SIZE_RATIO
+        )
+      : null;
+
+  // Keeps the corners centered on the image's real aspect ratio until the
+  // user actually drags one — after that, their alignment is left alone.
+  useEffect(() => {
+    if (hasCustomCorners || !containerSize || !imageSize) return;
+    setCorners(centeredCorners(containerSize, imageSize));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCustomCorners, containerSize?.width, containerSize?.height, imageSize?.width, imageSize?.height]);
+
   const updateCorner = useCallback((index: number, next: Point) => {
+    setHasCustomCorners(true);
     setCorners((prev) => {
       if (!prev) return prev;
       const updated = [...prev] as Corners;
@@ -92,7 +120,6 @@ export default function App() {
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
     setContainerSize({ width, height });
-    setCorners((prev) => prev ?? defaultCorners(width, height));
   };
 
   if (!permission) {
@@ -112,9 +139,6 @@ export default function App() {
     );
   }
 
-  const imageSize = containerSize
-    ? { width: containerSize.width * IMAGE_SIZE_RATIO, height: containerSize.height * IMAGE_SIZE_RATIO }
-    : null;
   const sourceCorners: Corners | null = imageSize
     ? [
         { x: 0, y: 0 },
