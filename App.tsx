@@ -92,6 +92,7 @@ export default function App() {
   const [hasCustomCorners, setHasCustomCorners] = useState(false);
   const [alignMode, setAlignMode] = useState(false);
   const [selectedLens, setSelectedLens] = useState<string | undefined>(undefined);
+  const [focusLocked, setFocusLocked] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const referenceImage = useImage(require('./assets/reference-placeholder.jpg'));
 
@@ -177,6 +178,7 @@ export default function App() {
         facing="back"
         selectedLens={selectedLens}
         onCameraReady={handleCameraReady}
+        autofocus={focusLocked ? 'on' : 'off'}
       />
       {referenceImage && imageSize && matrix && (
         <Canvas style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -220,6 +222,14 @@ export default function App() {
           maximumTrackTintColor="#ffffff55"
           thumbTintColor="#4dabf7"
         />
+        <View style={styles.controlsRow}>
+          <Text style={styles.controlsLabel}>
+            {focusLocked ? 'Focus locked' : 'Focus: continuous'}
+          </Text>
+          <Text style={styles.alignButton} onPress={() => setFocusLocked((f) => !f)}>
+            {focusLocked ? 'Unlock focus' : 'Lock focus'}
+          </Text>
+        </View>
       </View>
       <StatusBar style="light" />
     </View>
@@ -261,13 +271,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 4,
+    paddingBottom: 10,
   },
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
   },
   controlsLabel: {
     color: '#fff',

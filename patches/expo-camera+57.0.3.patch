@@ -1,7 +1,16 @@
 diff --git a/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt b/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
-index 999a22c..3aea57f 100644
+index 999a22c..68cac35 100644
 --- a/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
 +++ b/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
+@@ -637,7 +637,7 @@ class ExpoCameraView(
+         previewView.height.toFloat()
+       )
+       val action = FocusMeteringAction.Builder(
+-        meteringPointFactory.createPoint(1f, 1f),
++        meteringPointFactory.createPoint(previewView.width / 2f, previewView.height / 2f),
+         FocusMeteringAction.FLAG_AF
+       )
+         .build()
 @@ -646,8 +646,13 @@ class ExpoCameraView(
    }
  
