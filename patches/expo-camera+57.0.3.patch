@@ -1,0 +1,20 @@
+diff --git a/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt b/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
+index 999a22c..3aea57f 100644
+--- a/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
++++ b/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt
+@@ -646,8 +646,13 @@ class ExpoCameraView(
+   }
+ 
+   private fun setCameraZoom(value: Float) {
+-    val maxZoomRatio = camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1f
+-    val targetZoomRatio = max(1f, min(maxZoomRatio, value.coerceIn(0f, 1f) * maxZoomRatio))
++    val zoomState = camera?.cameraInfo?.zoomState?.value
++    val maxZoomRatio = zoomState?.maxZoomRatio ?: 1f
++    // Floor at the device's real minimum zoom ratio (not a hardcoded 1f) so
++    // devices whose logical camera fuses in an ultra-wide lens below 1x
++    // (e.g. many Pixel phones going down to 0.5x) can actually reach it.
++    val minZoomRatio = zoomState?.minZoomRatio ?: 1f
++    val targetZoomRatio = max(minZoomRatio, min(maxZoomRatio, value.coerceIn(0f, 1f) * maxZoomRatio))
+     camera?.cameraControl?.setZoomRatio(targetZoomRatio)
+   }
+ 
