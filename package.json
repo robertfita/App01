@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~57.0.11",
     "@react-native-community/slider": "^5.2.1",
+    "@shopify/react-native-skia": "^2.12.0",
     "expo": "~57.0.14",
     "expo-camera": "~57.0.3",
     "expo-status-bar": "~57.0.1",
