@@ -9,6 +9,10 @@ import { computeHomography, Point } from './perspective';
 const DEFAULT_OPACITY = 0.5;
 const IMAGE_SIZE_RATIO = 0.8; // reference image box is 80% of the screen, matching the old fixed inset
 const HANDLE_SIZE = 36;
+// Widest available rear lens, so the phone doesn't need to sit far back for
+// an A4 sheet to fit in frame. iOS-only: expo-camera doesn't yet expose lens
+// selection on Android, so this is a no-op there.
+const ULTRA_WIDE_LENS = 'builtInUltraWideCamera';
 
 type Corners = [Point, Point, Point, Point]; // top-left, top-right, bottom-right, bottom-left
 type Size = { width: number; height: number };
@@ -87,7 +91,23 @@ export default function App() {
   const [corners, setCorners] = useState<Corners | null>(null);
   const [hasCustomCorners, setHasCustomCorners] = useState(false);
   const [alignMode, setAlignMode] = useState(false);
+  const [selectedLens, setSelectedLens] = useState<string | undefined>(undefined);
+  const cameraRef = useRef<CameraView>(null);
   const referenceImage = useImage(require('./assets/reference-placeholder.jpg'));
+
+  const handleCameraReady = useCallback(() => {
+    cameraRef.current
+      ?.getAvailableLensesAsync()
+      .then((lenses) => {
+        if (lenses.includes(ULTRA_WIDE_LENS)) {
+          setSelectedLens(ULTRA_WIDE_LENS);
+        }
+      })
+      .catch(() => {
+        // Not available on this platform/device (e.g. Android, or an iPhone
+        // without an ultra-wide lens) — keep the default lens.
+      });
+  }, []);
 
   const imageSize =
     containerSize && referenceImage
@@ -151,7 +171,13 @@ export default function App() {
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
-      <CameraView style={StyleSheet.absoluteFill} facing="back" />
+      <CameraView
+        ref={cameraRef}
+        style={StyleSheet.absoluteFill}
+        facing="back"
+        selectedLens={selectedLens}
+        onCameraReady={handleCameraReady}
+      />
       {referenceImage && imageSize && matrix && (
         <Canvas style={StyleSheet.absoluteFill} pointerEvents="none">
           <Group matrix={matrix}>
